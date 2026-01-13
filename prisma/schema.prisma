@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Submission {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  // Store color mappings as JSON
+  // Each contains array of {hex: string, family: string}
+  monthsJson       String // JSON array of 12 ColorValue objects
+  daysOfMonthJson  String // JSON array of 31 ColorValue objects
+  daysOfWeekJson   String // JSON array of 7 ColorValue objects
+
+  @@map("submissions")
+}
+
