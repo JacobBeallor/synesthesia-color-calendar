@@ -44,8 +44,8 @@ export default function CollectivePage() {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">
             Loading collective patterns...
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function CollectivePage() {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 dark:text-red-400">
+          <p className="text-red-600">
             {error || "Failed to load data"}
           </p>
         </div>
@@ -70,13 +70,13 @@ export default function CollectivePage() {
       <main className="min-h-screen">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <h1 className="text-4xl font-bold mb-4">Collective Patterns</h1>
-          <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <p className="text-gray-600 text-lg">
               No submissions yet. Be the first to share your color mapping!
             </p>
             <a
               href="/personal"
-              className="inline-block mt-6 px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:opacity-90 transition-opacity"
+              className="inline-block mt-6 px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
             >
               Create Your Mapping →
             </a>
@@ -87,22 +87,22 @@ export default function CollectivePage() {
   }
 
   return (
-    <main className="min-h-screen pb-16 bg-gray-50 dark:bg-gray-950">
+    <main className="min-h-screen pb-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+          <h1 className="text-4xl font-bold mb-2 text-gray-900">
             Collective Patterns
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Aggregate color associations from <span className="font-bold text-indigo-600 dark:text-indigo-400">{data.totalSubmissions}</span>{" "}
+          <p className="text-gray-600">
+            Aggregate color associations from <span className="font-bold text-indigo-600">{data.totalSubmissions}</span>{" "}
             {data.totalSubmissions === 1 ? "submission" : "submissions"}
           </p>
         </div>
 
         {/* Days of Week */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">Days of Week</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Days of Week</h2>
+          <p className="text-sm text-gray-600 mb-6">
             How do people collectively associate colors with each day?
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -118,8 +118,8 @@ export default function CollectivePage() {
 
         {/* Months */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">Months</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Months</h2>
+          <p className="text-sm text-gray-600 mb-6">
             What colors emerge for each month?
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -134,20 +134,20 @@ export default function CollectivePage() {
         </section>
 
         {/* Consensus Insight */}
-        <section className="mb-12 border-t border-gray-200 dark:border-gray-800 pt-12">
-          <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+        <section className="mb-12 border-t border-gray-200 pt-12">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">
             Consensus & Variation
           </h2>
           <ConsensusAnalysis data={data} />
         </section>
 
         {/* Call to Action */}
-        <section className="pt-8 border-t border-gray-200 dark:border-gray-800">
-          <div className="text-center bg-indigo-50 dark:bg-indigo-950/30 rounded-lg p-8 border-l-4 border-indigo-500">
-            <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+        <section className="pt-8 border-t border-gray-200">
+          <div className="text-center bg-indigo-50 rounded-lg p-8 border-l-4 border-indigo-500">
+            <h2 className="text-2xl font-bold mb-3 text-gray-900">
               Add Your Perspective
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
               Every submission enriches our collective understanding of how
               people experience time through color.
             </p>
@@ -174,7 +174,7 @@ function ColorDistribution({
   const topFamily = counts[0];
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
       <h3 className="font-semibold mb-3">{title}</h3>
 
       {counts.length === 0 ? (
@@ -187,7 +187,7 @@ function ColorDistribution({
                 <span className="text-sm">{getColorFamilyLabel(item.family)}</span>
                 <span className="text-sm font-medium">{item.percentage}%</span>
               </div>
-              <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -207,7 +207,7 @@ function ColorDistribution({
       )}
 
       {topFamily && (
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="flex items-center gap-2">
             <div
               className="w-6 h-6 rounded"
@@ -215,7 +215,7 @@ function ColorDistribution({
                 backgroundColor: getColorFamilyRepresentative(topFamily.family),
               }}
             />
-            <span className="text-xs text-gray-600 dark:text-gray-400">
+            <span className="text-xs text-gray-600">
               Most common: {getColorFamilyLabel(topFamily.family)}
             </span>
           </div>
@@ -243,8 +243,8 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
-          <h3 className="font-semibold text-green-800 dark:text-green-200 mb-3">
+        <div className="bg-green-50 p-6 rounded-lg">
+          <h3 className="font-semibold text-green-800 mb-3">
             Strong Agreement
           </h3>
           {strongConsensus.length > 0 ? (
@@ -261,7 +261,7 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
                   />
                   <div>
                     <div className="text-sm font-medium">{item.name}</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                    <div className="text-xs text-gray-600">
                       {item.percentage}% see as{" "}
                       {item.family ? getColorFamilyLabel(item.family) : "N/A"}
                     </div>
@@ -270,14 +270,14 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               No days show strong consensus yet.
             </p>
           )}
         </div>
 
-        <div className="bg-orange-50 dark:bg-orange-900/20 p-6 rounded-lg">
-          <h3 className="font-semibold text-orange-800 dark:text-orange-200 mb-3">
+        <div className="bg-orange-50 p-6 rounded-lg">
+          <h3 className="font-semibold text-orange-800 mb-3">
             High Variation
           </h3>
           {weakConsensus.length > 0 ? (
@@ -285,7 +285,7 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
               {weakConsensus.map((item) => (
                 <div key={item.name} className="text-sm">
                   <span className="font-medium">{item.name}</span>
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-gray-600">
                     {" "}
                     — diverse associations
                   </span>
@@ -293,18 +293,17 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               All days show moderate to strong consensus.
             </p>
           )}
         </div>
       </div>
 
-      <p className="text-sm text-gray-500 dark:text-gray-500 italic">
+      <p className="text-sm text-gray-500 italic">
         Strong agreement = top color family chosen by 40%+ of submissions.
         High variation = top choice under 30%.
       </p>
     </div>
   );
 }
-

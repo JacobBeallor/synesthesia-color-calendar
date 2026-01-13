@@ -7,13 +7,6 @@
   --foreground: #171717;
 }
 
-/* Don't automatically switch to dark mode based on system preference */
-/* Dark mode is now controlled by the toggle button */
-html.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
 body {
   color: var(--foreground);
   background: var(--background);

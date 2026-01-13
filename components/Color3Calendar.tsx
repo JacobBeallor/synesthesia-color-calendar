@@ -88,7 +88,7 @@ function MonthCalendar({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
       <h3 className="text-lg font-semibold mb-4">
         {getMonthName(month)} {year}
       </h3>
@@ -97,7 +97,7 @@ function MonthCalendar({
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2"
+            className="text-center text-xs font-medium text-gray-500 py-2"
           >
             {day}
           </div>
@@ -119,7 +119,7 @@ function MonthCalendar({
                       ? "bg-transparent"
                       : isColor3Day
                       ? "font-bold text-white"
-                      : "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                      : "bg-gray-50 text-gray-700"
                   }
                 `}
                 style={
