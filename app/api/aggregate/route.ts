@@ -79,11 +79,13 @@ export async function GET() {
     const convertToFamilyCount = (
       counts: Record<string, number>
     ): FamilyCount[] => {
+      const totalForThisItem = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      
       return Object.entries(counts)
         .map(([family, count]) => ({
           family: family as ColorFamily,
           count,
-          percentage: Math.round((count / total) * 100),
+          percentage: totalForThisItem > 0 ? Math.round((count / totalForThisItem) * 100) : 0,
         }))
         .sort((a, b) => b.count - a.count);
     };

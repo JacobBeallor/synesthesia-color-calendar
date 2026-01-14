@@ -4,6 +4,15 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Color³ — Synesthetic Color Calendar",
   description: "A playful exploration of synesthetic color patterns in time.",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-96x96.png', type: 'image/png', sizes: '96x96' }
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({
@@ -25,13 +34,13 @@ export default function RootLayout({
                   href="/personal"
                   className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors"
                 >
-                  Personal
+                  Your Colors
                 </a>
                 <a
                   href="/collective"
                   className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors"
                 >
-                  Collective
+                  Community
                 </a>
               </div>
             </div>

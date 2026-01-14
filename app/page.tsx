@@ -50,7 +50,7 @@ export default function Home() {
               href="/collective"
               className="px-8 py-4 bg-white text-indigo-600 border-2 border-indigo-200 rounded-lg font-semibold hover:bg-indigo-50 transition-all shadow-md hover:shadow-lg"
             >
-              Collective Patterns
+              Community Patterns
             </a>
           </div>
 
