@@ -333,7 +333,7 @@ function PieChartCell({
               endAngle={450}
             >
               {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
+                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
               ))}
             </Pie>
           </PieChart>
