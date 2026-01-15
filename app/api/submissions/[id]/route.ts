@@ -4,9 +4,10 @@ import { ColorValue } from "@/lib/color";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { months, daysOfMonth, daysOfWeek } = body;
 
@@ -45,7 +46,7 @@ export async function PUT(
 
     // Update existing submission
     const submission = await prisma.submission.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         monthsJson: JSON.stringify(months),
         daysOfMonthJson: JSON.stringify(daysOfMonth),
