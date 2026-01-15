@@ -345,7 +345,7 @@ function PieChartCell({
       {showTooltip && hasData && (
         <div className="absolute z-50 pointer-events-none"
           style={{
-            top: size === "sm" ? "-130px" : "-150px",
+            bottom: size === "sm" ? "67px" : "98px",
             left: "50%",
             transform: "translateX(-50%)",
           }}
