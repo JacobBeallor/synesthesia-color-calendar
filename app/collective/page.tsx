@@ -9,25 +9,54 @@ import {
 import { getMonthName, getDayOfWeekName, computeColor3Days } from "@/lib/color3";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
+const STORAGE_KEY = "color3_selections";
+
 interface FamilyCount {
   family: ColorFamily;
   count: number;
   percentage: number;
 }
 
+type ConsensusStatus = "Strong agreement" | "Mixed" | "No consensus" | "Not enough data";
+
+interface ConsensusMetrics {
+  status: ConsensusStatus;
+  topShare: number;
+  entropy: number;
+  totalCount: number;
+}
+
+interface UnitData {
+  counts: FamilyCount[];
+  consensus: ConsensusMetrics;
+}
+
 interface AggregateData {
   totalSubmissions: number;
-  months: Record<number, FamilyCount[]>;
-  daysOfWeek: Record<number, FamilyCount[]>;
-  daysOfMonth: Record<number, FamilyCount[]>;
+  months: Record<number, UnitData>;
+  daysOfWeek: Record<number, UnitData>;
+  daysOfMonth: Record<number, UnitData>;
 }
 
 export default function CollectivePage() {
   const [data, setData] = useState<AggregateData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
+    // Check if user has submitted
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        setHasSubmitted(!!data.submissionId);
+      }
+    } catch (error) {
+      console.error("Error checking submission status:", error);
+    }
+
+    // Load aggregate data
     fetch("/api/aggregate")
       .then((res) => res.json())
       .then((data) => {
@@ -116,7 +145,8 @@ export default function CollectivePage() {
                   <PieChartCell
                     key={dow}
                     label={getDayOfWeekName(dow).slice(0, 3)}
-                    counts={data.daysOfWeek[dow] || []}
+                    counts={data.daysOfWeek[dow]?.counts || []}
+                    consensus={data.daysOfWeek[dow]?.consensus}
                     fullLabel={getDayOfWeekName(dow)}
                   />
                 ))}
@@ -133,7 +163,8 @@ export default function CollectivePage() {
                   <PieChartCell
                     key={month}
                     label={getMonthName(month).slice(0, 3)}
-                    counts={data.months[month] || []}
+                    counts={data.months[month]?.counts || []}
+                    consensus={data.months[month]?.consensus}
                     fullLabel={getMonthName(month)}
                   />
                 ))}
@@ -150,7 +181,8 @@ export default function CollectivePage() {
                   <PieChartCell
                     key={day}
                     label={day.toString()}
-                    counts={data.daysOfMonth[day] || []}
+                    counts={data.daysOfMonth[day]?.counts || []}
+                    consensus={data.daysOfMonth[day]?.consensus}
                     fullLabel={`Day ${day}`}
                     size="sm"
                   />
@@ -178,7 +210,7 @@ export default function CollectivePage() {
                   >
                     <div className="flex gap-2 flex-shrink-0">
                       <div
-                        className="w-8 h-8 rounded-lg border-2 border-gray-300"
+                        className="w-8 h-8 rounded-lg"
                         style={{
                           backgroundColor: getColorFamilyRepresentative(day.family),
                         }}
@@ -198,7 +230,7 @@ export default function CollectivePage() {
                         )}
                       </div>
                       <div className="text-sm text-gray-600 capitalize">
-                        Community consensus: {day.family}
+                        Community choice: {day.family}
                       </div>
                     </div>
                   </div>
@@ -208,30 +240,44 @@ export default function CollectivePage() {
           </section>
         )}
 
-        {/* Section 4: Consensus & Variation */}
+        {/* Section 4: Where We Agree (& Where We Don't) */}
         <section className="mb-12 border-t border-gray-200 pt-12">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">
-            Consensus & Variation
+            Where We Agree (& Where We Don't)
           </h2>
           <ConsensusAnalysis data={data} />
         </section>
 
         {/* Call to Action */}
         <section className="pt-8 border-t border-gray-200">
-          <div className="text-center bg-indigo-50 rounded-lg p-8 border-l-4 border-indigo-500">
-            <h2 className="text-2xl font-bold mb-3 text-gray-900">
-              Add Your Perspective
-            </h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Every submission enriches our collective understanding of how
-              people experience time through color.
-            </p>
-            <a
-              href="/personal"
-              className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
-            >
-              Create Your Mapping →
-            </a>
+          <div className="text-center max-w-2xl mx-auto">
+            {hasSubmitted ? (
+              <>
+                <h2 className="text-2xl font-bold mb-3 text-gray-900">
+                  Thank You for Contributing! 🎨
+                </h2>
+                <p className="text-gray-600">
+                  Your perspective has been added to our collective understanding of how
+                  people experience time through color.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold mb-3 text-gray-900">
+                  Add Your Perspective
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Every submission enriches our collective understanding of how
+                  people experience time through color.
+                </p>
+                <a
+                  href="/personal"
+                  className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+                >
+                  Create Your Mapping →
+                </a>
+              </>
+            )}
           </div>
         </section>
       </div>
@@ -244,11 +290,13 @@ function PieChartCell({
   label,
   fullLabel,
   counts,
+  consensus,
   size = "md",
 }: {
   label: string;
   fullLabel: string;
   counts: FamilyCount[];
+  consensus?: ConsensusMetrics;
   size?: "sm" | "md";
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -297,13 +345,13 @@ function PieChartCell({
       {showTooltip && hasData && (
         <div className="absolute z-50 pointer-events-none"
           style={{
-            top: size === "sm" ? "-120px" : "-140px",
+            top: size === "sm" ? "-130px" : "-150px",
             left: "50%",
             transform: "translateX(-50%)",
           }}
         >
           <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-4 min-w-[200px] relative">
-            <h4 className="font-semibold mb-3 text-gray-900">{fullLabel} <span className="text-xs text-gray-500 font-normal">(top 3 colors)</span></h4>
+            <h4 className={`font-semibold mb-3 text-gray-900 ${fullLabel === "Wednesday" ? "text-sm" : ""}`}>{fullLabel} <span className="text-xs text-gray-500 font-normal">(top 3 colors)</span></h4>
             <div className="space-y-2">
               {counts.slice(0, 3).map((item) => (
                 <div key={item.family}>
@@ -353,8 +401,8 @@ function PieChartCell({
 // Calculate Community Color³ Days
 function calculateCommunityColor3Days(data: AggregateData) {
   // Get most popular family for each component
-  const getMostPopular = (counts: FamilyCount[]): ColorFamily | null => {
-    return counts.length > 0 ? counts[0].family : null;
+  const getMostPopular = (unitData: UnitData | undefined): ColorFamily | null => {
+    return unitData && unitData.counts.length > 0 ? unitData.counts[0].family : null;
   };
 
   const monthMapping: Record<number, ColorFamily> = {};
@@ -363,17 +411,17 @@ function calculateCommunityColor3Days(data: AggregateData) {
 
   // Build mappings from most popular choices
   for (let i = 0; i < 12; i++) {
-    const popular = getMostPopular(data.months[i] || []);
+    const popular = getMostPopular(data.months[i]);
     if (popular) monthMapping[i] = popular;
   }
 
   for (let i = 1; i <= 31; i++) {
-    const popular = getMostPopular(data.daysOfMonth[i] || []);
+    const popular = getMostPopular(data.daysOfMonth[i]);
     if (popular) domMapping[i] = popular;
   }
 
   for (let i = 0; i < 7; i++) {
-    const popular = getMostPopular(data.daysOfWeek[i] || []);
+    const popular = getMostPopular(data.daysOfWeek[i]);
     if (popular) dowMapping[i] = popular;
   }
 
@@ -389,81 +437,125 @@ function calculateCommunityColor3Days(data: AggregateData) {
 }
 
 function ConsensusAnalysis({ data }: { data: AggregateData }) {
-  // Calculate consensus strength for days of week (most interesting)
-  const dowConsensus = [0, 1, 2, 3, 4, 5, 6].map((dow) => {
-    const counts = data.daysOfWeek[dow] || [];
-    const topPercentage = counts[0]?.percentage || 0;
-    return {
-      name: getDayOfWeekName(dow),
-      percentage: topPercentage,
-      family: counts[0]?.family,
-    };
+  // Collect all units with their consensus data
+  const allUnits: Array<{
+    type: 'dow' | 'month' | 'dom';
+    name: string;
+    unitData: UnitData;
+  }> = [];
+
+  // Days of week
+  [0, 1, 2, 3, 4, 5, 6].forEach((dow) => {
+    if (data.daysOfWeek[dow]) {
+      allUnits.push({
+        type: 'dow',
+        name: getDayOfWeekName(dow),
+        unitData: data.daysOfWeek[dow],
+      });
+    }
   });
 
-  const strongConsensus = dowConsensus.filter((d) => d.percentage >= 40);
-  const weakConsensus = dowConsensus.filter((d) => d.percentage < 30);
+  // Months
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].forEach((month) => {
+    if (data.months[month]) {
+      allUnits.push({
+        type: 'month',
+        name: getMonthName(month),
+        unitData: data.months[month],
+      });
+    }
+  });
+
+  // Days of month (only include those with data)
+  for (let i = 1; i <= 31; i++) {
+    if (data.daysOfMonth[i]) {
+      allUnits.push({
+        type: 'dom',
+        name: `Day ${i}`,
+        unitData: data.daysOfMonth[i],
+      });
+    }
+  }
+
+  // Filter by consensus status
+  const strongAgreement = allUnits.filter(
+    (u) => u.unitData.consensus.status === "Strong agreement"
+  );
+  const noConsensus = allUnits.filter(
+    (u) => u.unitData.consensus.status === "No consensus"
+  );
+  const mixed = allUnits.filter(
+    (u) => u.unitData.consensus.status === "Mixed"
+  );
 
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
+        {/* Strong Agreement */}
         <div className="bg-green-50 p-6 rounded-lg">
           <h3 className="font-semibold text-green-800 mb-3">
             Strong Agreement
           </h3>
-          {strongConsensus.length > 0 ? (
+          {strongAgreement.length > 0 ? (
             <div className="space-y-2">
-              {strongConsensus.map((item) => (
-                <div key={item.name} className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded flex-shrink-0"
-                    style={{
-                      backgroundColor: item.family
-                        ? getColorFamilyRepresentative(item.family)
-                        : "#ccc",
-                    }}
-                  />
-                  <div>
-                    <div className="text-sm font-medium">{item.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {item.percentage}% see as{" "}
-                      {item.family ? getColorFamilyLabel(item.family) : "N/A"}
+              {strongAgreement.slice(0, 5).map((item) => {
+                const topColor = item.unitData.counts[0];
+                return (
+                  <div key={item.name} className="flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded flex-shrink-0"
+                      style={{
+                        backgroundColor: getColorFamilyRepresentative(topColor.family),
+                      }}
+                    />
+                    <div>
+                      <div className="text-sm font-medium">{item.name}</div>
+                      <div className="text-xs text-gray-600">
+                        {topColor.percentage}% see as {getColorFamilyLabel(topColor.family)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+              {strongAgreement.length > 5 && (
+                <p className="text-xs text-gray-500 mt-2">
+                  +{strongAgreement.length - 5} more with strong agreement
+                </p>
+              )}
             </div>
           ) : (
             <p className="text-sm text-gray-600">
-              No days show strong consensus yet.
+              No units show strong consensus yet.
             </p>
           )}
         </div>
 
+        {/* High Variation (No Consensus) */}
         <div className="bg-orange-50 p-6 rounded-lg">
           <h3 className="font-semibold text-orange-800 mb-3">
             High Variation
           </h3>
-          {weakConsensus.length > 0 ? (
+          {noConsensus.length > 0 ? (
             <div className="space-y-2">
-              {weakConsensus.map((item) => (
+              {noConsensus.slice(0, 5).map((item) => (
                 <div key={item.name} className="text-sm">
                   <span className="font-medium">{item.name}</span>
                   <span className="text-gray-600"> — diverse associations</span>
                 </div>
               ))}
+              {noConsensus.length > 5 && (
+                <p className="text-xs text-gray-500 mt-2">
+                  +{noConsensus.length - 5} more with high variation
+                </p>
+              )}
             </div>
           ) : (
             <p className="text-sm text-gray-600">
-              All days show moderate to strong consensus.
+              All units show some level of consensus.
             </p>
           )}
         </div>
       </div>
-
-      <p className="text-sm text-gray-500 italic">
-        Strong agreement = top color family chosen by 40%+ of submissions. High
-        variation = top choice under 30%.
-      </p>
     </div>
   );
 }

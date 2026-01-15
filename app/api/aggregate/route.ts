@@ -8,11 +8,25 @@ interface FamilyCount {
   percentage: number;
 }
 
+type ConsensusStatus = "Strong agreement" | "Mixed" | "No consensus" | "Not enough data";
+
+interface ConsensusMetrics {
+  status: ConsensusStatus;
+  topShare: number;
+  entropy: number;
+  totalCount: number;
+}
+
+interface UnitData {
+  counts: FamilyCount[];
+  consensus: ConsensusMetrics;
+}
+
 interface AggregateData {
   totalSubmissions: number;
-  months: Record<number, FamilyCount[]>; // 0-11
-  daysOfWeek: Record<number, FamilyCount[]>; // 0-6
-  daysOfMonth: Record<number, FamilyCount[]>; // 1-31
+  months: Record<number, UnitData>; // 0-11
+  daysOfWeek: Record<number, UnitData>; // 0-6
+  daysOfMonth: Record<number, UnitData>; // 1-31
 }
 
 export async function GET() {
@@ -75,6 +89,53 @@ export async function GET() {
 
     const total = submissions.length;
 
+    // Calculate consensus metrics for a unit
+    const calculateConsensus = (counts: Record<string, number>): ConsensusMetrics => {
+      const totalCount = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      
+      // Not enough data
+      if (totalCount < 10) {
+        return {
+          status: "Not enough data",
+          topShare: 0,
+          entropy: 0,
+          totalCount,
+        };
+      }
+
+      // Calculate top share
+      const maxCount = Math.max(...Object.values(counts));
+      const topShare = maxCount / totalCount;
+
+      // Calculate normalized Shannon entropy
+      const NUM_COLOR_FAMILIES = 11;
+      let entropy = 0;
+      for (const count of Object.values(counts)) {
+        if (count > 0) {
+          const p = count / totalCount;
+          entropy -= p * Math.log(p);
+        }
+      }
+      const normalizedEntropy = entropy / Math.log(NUM_COLOR_FAMILIES);
+
+      // Classify based on rules
+      let status: ConsensusStatus;
+      if (normalizedEntropy <= 0.35 && topShare >= 0.60) {
+        status = "Strong agreement";
+      } else if (normalizedEntropy >= 0.70 && topShare <= 0.40) {
+        status = "No consensus";
+      } else {
+        status = "Mixed";
+      }
+
+      return {
+        status,
+        topShare: Math.round(topShare * 100) / 100,
+        entropy: Math.round(normalizedEntropy * 100) / 100,
+        totalCount,
+      };
+    };
+
     // Convert counts to sorted arrays with percentages
     const convertToFamilyCount = (
       counts: Record<string, number>
@@ -90,24 +151,30 @@ export async function GET() {
         .sort((a, b) => b.count - a.count);
     };
 
+    // Convert to unit data with consensus
+    const convertToUnitData = (counts: Record<string, number>): UnitData => ({
+      counts: convertToFamilyCount(counts),
+      consensus: calculateConsensus(counts),
+    });
+
     const result: AggregateData = {
       totalSubmissions: total,
       months: Object.fromEntries(
         Object.entries(monthCounts).map(([key, counts]) => [
           parseInt(key),
-          convertToFamilyCount(counts),
+          convertToUnitData(counts),
         ])
       ),
       daysOfWeek: Object.fromEntries(
         Object.entries(dowCounts).map(([key, counts]) => [
           parseInt(key),
-          convertToFamilyCount(counts),
+          convertToUnitData(counts),
         ])
       ),
       daysOfMonth: Object.fromEntries(
         Object.entries(domCounts).map(([key, counts]) => [
           parseInt(key),
-          convertToFamilyCount(counts),
+          convertToUnitData(counts),
         ])
       ),
     };
