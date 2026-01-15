@@ -32,8 +32,8 @@ export default function Home() {
               color families align.
             </p>
             <p className="text-base text-gray-600 italic">
-              💡 Color³ days are based on color families — like "blue"
-              or "red" — not exact shades, allowing for expressive
+              💡 Color³ days are based on color families — like &quot;blue&quot;
+              or &quot;red&quot; — not exact shades, allowing for expressive
               freedom in your choices.
             </p>
           </div>

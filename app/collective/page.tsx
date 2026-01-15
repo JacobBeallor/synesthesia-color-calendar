@@ -230,7 +230,7 @@ export default function CollectivePage() {
                         )}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Community choice: {day.family.charAt(0).toUpperCase() + day.family.slice(1)}
+                        Community choice: {day.family.charAt(0).toUpperCase() + day.family.slice(1)}³
                       </div>
                     </div>
                   </div>
@@ -243,7 +243,7 @@ export default function CollectivePage() {
         {/* Section 4: Where We Agree (& Where We Don't) */}
         <section className="mb-12 border-t border-gray-200 pt-12">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">
-            Where We Agree (& Where We Don't)
+            Where We Agree (& Where We Don&apos;t)
           </h2>
           <ConsensusAnalysis data={data} />
         </section>
