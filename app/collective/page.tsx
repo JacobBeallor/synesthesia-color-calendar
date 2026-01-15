@@ -111,7 +111,7 @@ export default function CollectivePage() {
               <h3 className="text-lg font-bold mb-4 text-indigo-700 text-center">
                 Days of the Week
               </h3>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div className="grid grid-cols-2 gap-x-1 gap-y-2">
                 {[0, 1, 2, 3, 4, 5, 6].map((dow) => (
                   <PieChartCell
                     key={dow}
@@ -170,7 +170,7 @@ export default function CollectivePage() {
               <p className="text-sm text-gray-600 mb-4">
                 Based on the most popular color choices across all submissions
               </p>
-              <div className="space-y-3">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {communityColor3Days.slice(0, 8).map((day) => (
                   <div
                     key={day.date}
@@ -180,9 +180,7 @@ export default function CollectivePage() {
                       <div
                         className="w-8 h-8 rounded-lg border-2 border-gray-300"
                         style={{
-                          backgroundColor: getColorFamilyRepresentative(
-                            day.family
-                          ),
+                          backgroundColor: getColorFamilyRepresentative(day.family),
                         }}
                         title={`Popular color family: ${day.family}`}
                       />
