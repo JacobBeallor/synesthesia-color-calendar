@@ -120,9 +120,9 @@ export async function GET() {
 
       // Classify based on rules
       let status: ConsensusStatus;
-      if (normalizedEntropy <= 0.35 && topShare >= 0.60) {
+      if (normalizedEntropy <= 0.35 && topShare > 0.50) {
         status = "Strong agreement";
-      } else if (normalizedEntropy >= 0.70 && topShare <= 0.40) {
+      } else if (normalizedEntropy >= 0.50 && topShare < 0.50) {
         status = "No consensus";
       } else {
         status = "Mixed";

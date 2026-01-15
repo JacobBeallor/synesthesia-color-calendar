@@ -466,24 +466,17 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
     }
   });
 
-  // Days of month (only include those with data)
-  for (let i = 1; i <= 31; i++) {
-    if (data.daysOfMonth[i]) {
-      allUnits.push({
-        type: 'dom',
-        name: `Day ${i}`,
-        unitData: data.daysOfMonth[i],
-      });
-    }
-  }
+  // Skip days of month - they're less interesting and more varied
 
   // Filter by consensus status
-  const strongAgreement = allUnits.filter(
-    (u) => u.unitData.consensus.status === "Strong agreement"
-  );
-  const noConsensus = allUnits.filter(
-    (u) => u.unitData.consensus.status === "No consensus"
-  );
+  const strongAgreement = allUnits
+    .filter((u) => u.unitData.consensus.status === "Strong agreement")
+    .sort((a, b) => b.unitData.consensus.topShare - a.unitData.consensus.topShare); // Highest consensus first
+
+  const noConsensus = allUnits
+    .filter((u) => u.unitData.consensus.status === "No consensus")
+    .sort((a, b) => b.unitData.consensus.entropy - a.unitData.consensus.entropy); // Most debated first
+
   const mixed = allUnits.filter(
     (u) => u.unitData.consensus.status === "Mixed"
   );
@@ -497,22 +490,29 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
             Strong Agreement
           </h3>
           {strongAgreement.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {strongAgreement.slice(0, 5).map((item) => {
                 const topColor = item.unitData.counts[0];
                 return (
-                  <div key={item.name} className="flex items-center gap-3">
-                    <div
-                      className="w-8 h-8 rounded flex-shrink-0"
-                      style={{
-                        backgroundColor: getColorFamilyRepresentative(topColor.family),
-                      }}
-                    />
-                    <div>
-                      <div className="text-sm font-medium">{item.name}</div>
-                      <div className="text-xs text-gray-600">
-                        {topColor.percentage}% see as {getColorFamilyLabel(topColor.family)}
-                      </div>
+                  <div key={item.name}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm">{item.name}</span>
+                      <span className="text-xs text-gray-600 capitalize">
+                        {topColor.percentage}% {topColor.family}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                      {item.unitData.counts.map((color) => (
+                        <div
+                          key={color.family}
+                          className="h-full transition-all duration-300"
+                          style={{
+                            width: `${color.percentage}%`,
+                            backgroundColor: getColorFamilyRepresentative(color.family),
+                          }}
+                          title={`${color.family}: ${color.percentage}%`}
+                        />
+                      ))}
                     </div>
                   </div>
                 );
@@ -533,16 +533,33 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
         {/* High Variation (No Consensus) */}
         <div className="bg-orange-50 p-6 rounded-lg">
           <h3 className="font-semibold text-orange-800 mb-3">
-            High Variation
+            Highly Debated
           </h3>
           {noConsensus.length > 0 ? (
-            <div className="space-y-2">
-              {noConsensus.slice(0, 5).map((item) => (
-                <div key={item.name} className="text-sm">
-                  <span className="font-medium">{item.name}</span>
-                  <span className="text-gray-600"> — diverse associations</span>
-                </div>
-              ))}
+            <div className="space-y-3">
+              {noConsensus.slice(0, 5).map((item) => {
+                return (
+                  <div key={item.name}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm">{item.name}</span>
+                      <span className="text-xs text-gray-500">no clear winner</span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                      {item.unitData.counts.map((color) => (
+                        <div
+                          key={color.family}
+                          className="h-full transition-all duration-300"
+                          style={{
+                            width: `${color.percentage}%`,
+                            backgroundColor: getColorFamilyRepresentative(color.family),
+                          }}
+                          title={`${color.family}: ${color.percentage}%`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
               {noConsensus.length > 5 && (
                 <p className="text-xs text-gray-500 mt-2">
                   +{noConsensus.length - 5} more with high variation
@@ -556,6 +573,10 @@ function ConsensusAnalysis({ data }: { data: AggregateData }) {
           )}
         </div>
       </div>
+
+      <p className="text-xs text-gray-500 italic mt-4">
+        * Only showing days of the week and months. Days of the month tend to have more varied associations.
+      </p>
     </div>
   );
 }
