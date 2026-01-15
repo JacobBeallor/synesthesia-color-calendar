@@ -229,8 +229,8 @@ export default function CollectivePage() {
                           }
                         )}
                       </div>
-                      <div className="text-sm text-gray-600 capitalize">
-                        Community choice: {day.family}
+                      <div className="text-sm text-gray-600">
+                        Community choice: {day.family.charAt(0).toUpperCase() + day.family.slice(1)}
                       </div>
                     </div>
                   </div>
